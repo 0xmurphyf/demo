@@ -23,7 +23,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    pointer-events: none;
+    pointer-events: auto;
     z-index: 9999;
     background: #000;
   }
@@ -176,6 +176,17 @@
   .close-btn:hover {
     border-color: rgba(255,255,255,0.4);
   }
+
+  .toc-btn.active,
+  .playover-btn.active {
+    border-color: #f4c430;
+    background: rgba(244,196,48,0.08);
+  }
+
+  .toc-btn.active .label,
+  .playover-btn.active .name {
+    color: #f4c430;
+  }
 </style>
 </head>
 <body>
@@ -205,9 +216,9 @@
   </div>
 
   <div id="playover" class="overlay hidden">
-    <div id="playoverTitle" class="title"></div>
+    <div id="playoverTitle" class="title">Ending Menu</div>
     <div class="playover">
-      <button class="playover-btn" id="playWin" onclick="playWin()">
+      <button class="playover-btn active" id="playWin" onclick="playWin()">
         <span class="icon">🏆</span>
         <span class="name">Victory</span>
         <span class="sub">Show Win.mp4</span>
@@ -222,14 +233,22 @@
   </div>
 
 <script>
+  var video = null;
+
   function openPlayover(title) {
-    document.getElementById('playoverTitle').textContent = title || 'Ending';
+    document.getElementById('playoverTitle').textContent = title || 'Ending Menu';
     document.getElementById('winScreen').classList.add('hidden');
     document.getElementById('loseScreen').classList.add('hidden');
     document.getElementById('playover').classList.remove('hidden');
+    cleanVideo();
+    document.getElementById('playWin').classList.add('active');
+    document.getElementById('playLose').classList.remove('active');
   }
 
   function playWin() {
+    cleanVideo();
+    document.getElementById('playWin').classList.add('active');
+    document.getElementById('playLose').classList.remove('active');
     var v = document.createElement('video');
     v.setAttribute('playsinline', '');
     v.setAttribute('autoplay', '');
@@ -251,6 +270,9 @@
   }
 
   function playLose() {
+    cleanVideo();
+    document.getElementById('playLose').classList.add('active');
+    document.getElementById('playWin').classList.remove('active');
     var v = document.createElement('video');
     v.setAttribute('playsinline', '');
     v.setAttribute('autoplay', '');
@@ -272,15 +294,28 @@
   }
 
   function closeOverlay() {
-    var video = document.getElementById('overlay-video');
-    if (video) { video.pause(); video.src = ''; video.load(); }
-    document.getElementById('playover').classList.add('hidden');
+    cleanVideo();
     document.getElementById('winScreen').classList.add('hidden');
     document.getElementById('loseScreen').classList.add('hidden');
+    document.getElementById('playover').classList.remove('hidden');
+    document.getElementById('playWin').classList.add('active');
+    document.getElementById('playLose').classList.remove('active');
+  }
+
+  function cleanVideo() {
+    var v = document.getElementById('overlay-video');
+    if (v) {
+      v.pause();
+      v.src = '';
+      v.load();
+      v.remove();
+    }
   }
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeOverlay(); }
+    if (e.key === 'Escape') {
+      closeOverlay();
+    }
   });
 </script>
 
